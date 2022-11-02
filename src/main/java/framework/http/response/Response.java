@@ -1,6 +1,6 @@
-package framework.response;
+package framework.http.response;
 
-import framework.request.Header;
+import framework.http.request.Header;
 
 public abstract class Response {
     protected Header header;

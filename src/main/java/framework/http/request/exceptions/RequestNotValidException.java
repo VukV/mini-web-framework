@@ -1,4 +1,4 @@
-package framework.request.exceptions;
+package framework.http.request.exceptions;
 
 public class RequestNotValidException extends Exception {
 

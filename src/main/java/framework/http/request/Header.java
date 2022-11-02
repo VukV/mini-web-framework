@@ -1,4 +1,4 @@
-package framework.request;
+package framework.http.request;
 
 import java.util.HashMap;
 import java.util.Set;

@@ -1,4 +1,4 @@
-package framework.request.enums;
+package framework.http.request.enums;
 
 public enum Method {
     GET,

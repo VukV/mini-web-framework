@@ -1,12 +1,12 @@
 package server;
 
-import framework.response.JsonResponse;
-import framework.response.Response;
-import framework.request.enums.Method;
-import framework.request.Header;
-import framework.request.Helper;
-import framework.request.Request;
-import framework.request.exceptions.RequestNotValidException;
+import framework.http.response.JsonResponse;
+import framework.http.response.Response;
+import framework.http.request.enums.Method;
+import framework.http.request.Header;
+import framework.http.request.Helper;
+import framework.http.request.Request;
+import framework.http.request.exceptions.RequestNotValidException;
 
 import java.io.*;
 import java.net.Socket;

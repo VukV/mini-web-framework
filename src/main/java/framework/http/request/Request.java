@@ -1,6 +1,6 @@
-package framework.request;
+package framework.http.request;
 
-import framework.request.enums.Method;
+import framework.http.request.enums.Method;
 
 import java.util.HashMap;
 

@@ -1,4 +1,4 @@
-package framework.response;
+package framework.http.response;
 
 public class RedirectResponse extends Response {
 
