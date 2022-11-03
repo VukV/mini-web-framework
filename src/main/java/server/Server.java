@@ -13,7 +13,7 @@ public class Server {
     public static void main(String[] args) throws IOException {
 
         try {
-            new DependencyInjectionEngine();
+            new DependencyInjectionEngine().inject();
 
             ServerSocket serverSocket = new ServerSocket(TCP_PORT);
             System.out.println("Server is running at http://localhost:"+TCP_PORT);

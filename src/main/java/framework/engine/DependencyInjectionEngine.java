@@ -20,6 +20,7 @@ public class DependencyInjectionEngine {
     private Set<Class<?>> controllers;
 
     private ClassScanner classScanner;
+    private RouteRegistrationEngine routeRegistrationEngine;
 
     public DependencyInjectionEngine() throws Exception {
         dependencyContainer = new HashMap<>();
@@ -28,8 +29,12 @@ public class DependencyInjectionEngine {
         controllers = new HashSet<>();
 
         classScanner = new ClassScanner();
+        routeRegistrationEngine = new RouteRegistrationEngine();
+    }
 
+    public void inject() throws Exception {
         arrangeClasses();
+        //TODO RouteRegistration add controllers
         injectFields();
     }
 
