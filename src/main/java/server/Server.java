@@ -1,5 +1,7 @@
 package server;
 
+import framework.engine.DependencyInjectionEngine;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -11,6 +13,8 @@ public class Server {
     public static void main(String[] args) throws IOException {
 
         try {
+            new DependencyInjectionEngine();
+
             ServerSocket serverSocket = new ServerSocket(TCP_PORT);
             System.out.println("Server is running at http://localhost:"+TCP_PORT);
             while(true){
@@ -20,6 +24,8 @@ public class Server {
 
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
     }

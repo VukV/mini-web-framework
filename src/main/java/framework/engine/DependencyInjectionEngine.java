@@ -1,8 +1,7 @@
 package framework.engine;
 
-import java.io.IOException;
+import framework.annotations.*;
 import java.lang.reflect.Field;
-import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -17,22 +16,64 @@ public class DependencyInjectionEngine {
      */
     private Map<String, Class<?>> dependencyContainer;
     private Set<Class<?>> services;
-    private Set<Class<?>> containers;
+    private Set<Class<?>> components;
+    private Set<Class<?>> controllers;
 
     private ClassScanner classScanner;
 
-    public DependencyInjectionEngine() {
+    public DependencyInjectionEngine() throws Exception {
         dependencyContainer = new HashMap<>();
         services = new HashSet<>();
-        containers = new HashSet<>();
+        components = new HashSet<>();
+        controllers = new HashSet<>();
+
         classScanner = new ClassScanner();
 
         arrangeClasses();
         injectFields();
     }
 
-    private void arrangeClasses(){
-        //TODO
+    private void arrangeClasses() throws Exception {
+        Set<Class<?>> allClasses = classScanner.scanAllClasses();
+
+        boolean isBean;
+        for(Class<?> currentClass: allClasses){
+            isBean = false;
+            if(!currentClass.isInterface() && !currentClass.isEnum() && !currentClass.isAnnotation()){
+                if(currentClass.isAnnotationPresent(Controller.class)){
+                    controllers.add(currentClass);
+                }
+                else if(currentClass.isAnnotationPresent(Service.class)){
+                    services.add(currentClass);
+                    isBean = true;
+                }
+                else if(currentClass.isAnnotationPresent(Component.class)){
+                    components.add(currentClass);
+                    isBean = true;
+                }
+                else if(currentClass.isAnnotationPresent(Bean.class)){
+                    Scope currentClassScope = currentClass.getAnnotation(Bean.class).scope();
+                    isBean = true;
+                    if (currentClassScope == Scope.SINGLETON){
+                        services.add(currentClass);
+                    }
+                    else if(currentClassScope == Scope.PROTOTYPE){
+                        components.add(currentClass);
+                    }
+                }
+
+                if(currentClass.isAnnotationPresent(Qualifier.class)){
+                    if(isBean){
+                        if(dependencyContainer.putIfAbsent(currentClass.getAnnotation(Qualifier.class).value(), currentClass) != null){
+                            throw new RuntimeException("Qualifier value must be unique!");
+                        }
+                    }
+                    else {
+                        throw new RuntimeException("Class with Qualifier must also be a Bean class!");
+                    }
+                }
+            }
+        }
     }
 
     private void injectFields(){
