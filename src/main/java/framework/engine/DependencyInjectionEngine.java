@@ -1,6 +1,7 @@
 package framework.engine;
 
 import framework.annotations.*;
+import framework.engine.routes.RouteRegistrationEngine;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -40,6 +41,7 @@ public class DependencyInjectionEngine {
         arrangeClasses();
         instantiateControllers();
         controllerInjection();
+        mapRoutes();
     }
 
     private void arrangeClasses() throws Exception {
@@ -197,5 +199,9 @@ public class DependencyInjectionEngine {
                 + field.getDeclaringClass().getName() + " on "
                 + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy"))
                 + " with " + objectInstance.hashCode());
+    }
+
+    private void mapRoutes() {
+        RouteRegistrationEngine.getInstance().registerRoutes();
     }
 }
