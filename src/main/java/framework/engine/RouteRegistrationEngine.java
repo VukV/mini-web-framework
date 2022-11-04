@@ -12,8 +12,13 @@ public class RouteRegistrationEngine {
         controllerInstances = new HashMap<>();
     }
 
-    public void setControllers(Set<Class<?>> controllers){
-        //TODO map(controller class, controller object)
+    public void instantiateControllers(Set<Class<?>> controllers) throws Exception {
+        for(Class<?> controllerClass: controllers){
+            controllerInstances.put(controllerClass, controllerClass.getConstructor().newInstance());
+        }
     }
 
+    public Map<Class<?>, Object> getControllerInstances() {
+        return controllerInstances;
+    }
 }

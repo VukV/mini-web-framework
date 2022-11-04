@@ -34,8 +34,8 @@ public class DependencyInjectionEngine {
 
     public void inject() throws Exception {
         arrangeClasses();
-        //TODO RouteRegistration add controllers
-        injectFields();
+        instantiateControllers();
+        controllerInjection();
     }
 
     private void arrangeClasses() throws Exception {
@@ -81,8 +81,52 @@ public class DependencyInjectionEngine {
         }
     }
 
-    private void injectFields(){
-        //TODO
+    private void instantiateControllers() throws Exception {
+        routeRegistrationEngine.instantiateControllers(controllers);
+    }
+
+    private void controllerInjection() throws Exception{
+        for(Map.Entry<Class<?>, Object> entry: routeRegistrationEngine.getControllerInstances().entrySet()){
+            injectFields(entry.getKey(), entry.getValue());
+        }
+    }
+
+    private void injectFields(Class<?> controllerClass, Object controllerInstance) throws Exception {
+        for(Field field: controllerClass.getDeclaredFields()){
+            if(!field.isAnnotationPresent(Autowired.class)){
+                continue;
+            }
+
+            Class<?> fieldClass = field.getType();
+            injectFields(fieldClass, fieldClass.getConstructor().newInstance());
+
+            if(services.contains(fieldClass)){
+                //TODO injectService
+            }
+            else if(components.contains(fieldClass)){
+                //TODO injectComponent
+            }
+            else if(field.isAnnotationPresent(Qualifier.class)) {
+                Class<?> implementationClass = dependencyContainer.get(field.getAnnotation(Qualifier.class).value());
+                if(implementationClass != null){
+                    if(services.contains(implementationClass)){
+                        //TODO injectService
+                    }
+                    else if(components.contains(implementationClass)){
+                        //TODO injectComponent
+                    }
+                    else {
+                        throw new RuntimeException("There is no implementation with given Qualifier!");
+                    }
+                }
+                else {
+                    throw new RuntimeException("There is no implementation with given Qualifier!");
+                }
+            }
+            else {
+                throw new RuntimeException("No class found!");
+            }
+        }
     }
 
     private void printVerbose(Field field, Object objectInstance){
