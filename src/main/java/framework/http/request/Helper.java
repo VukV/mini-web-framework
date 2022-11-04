@@ -5,13 +5,13 @@ import java.util.HashMap;
 public class Helper {
 
     public static HashMap<String, String> getParametersFromRoute(String route) {
-        String[] splittedRoute = route.split("\\?");
+        String[] splitRoute = route.split("\\?");
 
-        if(splittedRoute.length == 1) {
+        if(splitRoute.length == 1) {
             return new HashMap<String, String>();
         }
 
-        return Helper.getParametersFromString(splittedRoute[1]);
+        return Helper.getParametersFromString(splitRoute[1]);
     }
 
     public static HashMap<String, String> getParametersFromString(String parametersString) {

@@ -20,7 +20,6 @@ public class DependencyInjectionEngine {
     private Set<Class<?>> controllers;
 
     private ClassScanner classScanner;
-    private RouteRegistrationEngine routeRegistrationEngine;
 
     public DependencyInjectionEngine() throws Exception {
         dependencyContainer = new HashMap<>();
@@ -29,7 +28,6 @@ public class DependencyInjectionEngine {
         controllers = new HashSet<>();
 
         classScanner = new ClassScanner();
-        routeRegistrationEngine = new RouteRegistrationEngine();
     }
 
     public void inject() throws Exception {
@@ -82,11 +80,11 @@ public class DependencyInjectionEngine {
     }
 
     private void instantiateControllers() throws Exception {
-        routeRegistrationEngine.instantiateControllers(controllers);
+        RouteRegistrationEngine.getInstance().instantiateControllers(controllers);
     }
 
     private void controllerInjection() throws Exception{
-        for(Map.Entry<Class<?>, Object> entry: routeRegistrationEngine.getControllerInstances().entrySet()){
+        for(Map.Entry<Class<?>, Object> entry: RouteRegistrationEngine.getInstance().getControllerInstances().entrySet()){
             injectFields(entry.getKey(), entry.getValue());
         }
     }

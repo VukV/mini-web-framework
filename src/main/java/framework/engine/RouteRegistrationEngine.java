@@ -6,9 +6,21 @@ import java.util.Set;
 
 public class RouteRegistrationEngine {
 
+    private static RouteRegistrationEngine instance;
     private Map<Class<?>, Object> controllerInstances;
 
-    public RouteRegistrationEngine(){
+    public static RouteRegistrationEngine getInstance(){
+        if(instance == null){
+            synchronized (RouteRegistrationEngine.class) {
+                if(instance == null){
+                    instance = new RouteRegistrationEngine();
+                }
+            }
+        }
+        return instance;
+    }
+
+    private RouteRegistrationEngine(){
         controllerInstances = new HashMap<>();
     }
 
