@@ -1,6 +1,8 @@
 package framework.engine;
 
 import framework.annotations.*;
+
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -15,14 +17,18 @@ public class DependencyInjectionEngine {
      * Class - interface implementation
      */
     private Map<String, Class<?>> dependencyContainer;
+    private Set<Object> serviceInstances;
+
     private Set<Class<?>> services;
     private Set<Class<?>> components;
     private Set<Class<?>> controllers;
 
     private ClassScanner classScanner;
 
-    public DependencyInjectionEngine() throws Exception {
+    public DependencyInjectionEngine() {
         dependencyContainer = new HashMap<>();
+        serviceInstances = new HashSet<>();
+
         services = new HashSet<>();
         components = new HashSet<>();
         controllers = new HashSet<>();
@@ -96,22 +102,20 @@ public class DependencyInjectionEngine {
             }
 
             Class<?> fieldClass = field.getType();
-            injectFields(fieldClass, fieldClass.getConstructor().newInstance());
-
             if(services.contains(fieldClass)){
-                //TODO injectService
+                injectService(controllerInstance, field, fieldClass);
             }
             else if(components.contains(fieldClass)){
-                //TODO injectComponent
+                injectComponent(controllerInstance, field, fieldClass);
             }
             else if(field.isAnnotationPresent(Qualifier.class)) {
                 Class<?> implementationClass = dependencyContainer.get(field.getAnnotation(Qualifier.class).value());
                 if(implementationClass != null){
                     if(services.contains(implementationClass)){
-                        //TODO injectService
+                        injectService(controllerInstance, field, implementationClass);
                     }
                     else if(components.contains(implementationClass)){
-                        //TODO injectComponent
+                        injectComponent(controllerInstance, field, implementationClass);
                     }
                     else {
                         throw new RuntimeException("There is no implementation with given Qualifier!");
@@ -125,6 +129,67 @@ public class DependencyInjectionEngine {
                 throw new RuntimeException("No class found!");
             }
         }
+    }
+
+    /**
+     * Method that injects services.
+     * @param instanceToInjectInto - Object whose field is being injected.
+     * @param fieldForInjection - Field that is being injected, used to check verbose parameter.
+     * @param serviceClass - Class of the field that is being injected, used to find/instantiate services.
+     */
+    private void injectService(Object instanceToInjectInto, Field fieldForInjection, Class<?> serviceClass) throws Exception{
+        Object serviceInstance = null;
+        boolean alreadyInstantiated = false;
+
+        for(Object si: serviceInstances){
+            if(serviceClass.isInstance(si)){
+                serviceInstance = si;
+                alreadyInstantiated = true;
+                break;
+            }
+        }
+
+        if(!alreadyInstantiated){
+            Constructor<?> serviceConstructor = serviceClass.getConstructor();
+            serviceConstructor.setAccessible(true);
+            serviceInstance = serviceConstructor.newInstance();
+
+            if(serviceClass.getDeclaredFields().length > 0){
+                injectFields(serviceClass, serviceInstance);
+            }
+
+            if(fieldForInjection.getAnnotation(Autowired.class).verbose()){
+                printVerbose(fieldForInjection, serviceInstance);
+            }
+
+            serviceInstances.add(serviceInstance);
+        }
+
+        fieldForInjection.setAccessible(true);
+        fieldForInjection.set(instanceToInjectInto, serviceInstance);
+    }
+
+    /**
+     * Method that injects components.
+     * @param instanceToInjectInto - Object whose field is being injected.
+     * @param fieldForInjection - Field that is being injected, used to check verbose parameter.
+     * @param componentClass - Class of the component that is being injected, used to instantiate components.
+     */
+    private void injectComponent(Object instanceToInjectInto, Field fieldForInjection, Class<?> componentClass) throws Exception{
+        Constructor<?> componentConstructor = componentClass.getConstructor();
+        componentConstructor.setAccessible(true);
+        Object componentInstance = componentConstructor.newInstance();
+
+        if(componentClass.getDeclaredFields().length > 0){
+            injectFields(componentClass, componentInstance);
+        }
+
+        if(fieldForInjection.getAnnotation(Autowired.class).verbose()){
+            printVerbose(fieldForInjection, componentInstance);
+        }
+
+        fieldForInjection.setAccessible(true);
+        fieldForInjection.set(instanceToInjectInto, componentInstance);
     }
 
     private void printVerbose(Field field, Object objectInstance){
