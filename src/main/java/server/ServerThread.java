@@ -1,5 +1,6 @@
 package server;
 
+import framework.engine.routes.RouteRegistrationEngine;
 import framework.http.response.JsonResponse;
 import framework.http.response.Response;
 import framework.http.request.enums.Method;
@@ -9,6 +10,7 @@ import framework.http.request.Request;
 import framework.http.request.exceptions.RequestNotValidException;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,11 +51,13 @@ public class ServerThread implements Runnable{
 
 
             // Response example
+            /*
             Map<String, Object> responseMap = new HashMap<>();
             responseMap.put("route_location", request.getLocation());
             responseMap.put("route_method", request.getMethod().toString());
             responseMap.put("parameters", request.getParameters());
-            Response response = new JsonResponse(responseMap);
+             */
+            Response response = RouteRegistrationEngine.getInstance().handleRequest(request);
 
             out.println(response.render());
 
@@ -63,6 +67,8 @@ public class ServerThread implements Runnable{
 
         } catch (IOException | RequestNotValidException e) {
             e.printStackTrace();
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 
