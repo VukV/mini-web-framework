@@ -83,6 +83,7 @@ public class ServerThread implements Runnable{
         String route = actionRow[1];
         Header header = new Header();
         HashMap<String, String> parameters = Helper.getParametersFromRoute(route);
+        route = route.split("\\?")[0];
 
         do {
             command = in.readLine();
@@ -93,11 +94,10 @@ public class ServerThread implements Runnable{
         } while(!command.trim().equals(""));
 
         if(method.equals(Method.POST)) {
-            int contentLength = Integer.parseInt(header.get("content-length"));
+            int contentLength = Integer.parseInt(header.get("Content-Length"));
             char[] buff = new char[contentLength];
             in.read(buff, 0, contentLength);
             String parametersString = new String(buff);
-
             HashMap<String, String> postParameters = Helper.getParametersFromString(parametersString);
             for (String parameterName : postParameters.keySet()) {
                 parameters.put(parameterName, postParameters.get(parameterName));
