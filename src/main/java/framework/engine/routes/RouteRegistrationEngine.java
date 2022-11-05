@@ -3,6 +3,7 @@ package framework.engine.routes;
 import framework.annotations.GET;
 import framework.annotations.POST;
 import framework.annotations.Path;
+import framework.http.request.Request;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -52,7 +53,7 @@ public class RouteRegistrationEngine {
                 }
 
                 if(method.isAnnotationPresent(POST.class) || method.isAnnotationPresent(GET.class)){
-                    if(checkPath(method)){
+                    if(checkPath(method) && checkArguments(method)){
                         mapPathMethod(method, controllerInstance);
                     }
                 }
@@ -69,10 +70,26 @@ public class RouteRegistrationEngine {
         }
     }
 
+    private boolean checkArguments(Method method){
+        if(method.getParameterTypes().length > 1){
+            throw new RuntimeException("Method can't have more than one argument!");
+        }
+        else if(method.getParameterTypes().length == 1 && method.getParameterTypes()[0] != Request.class){
+            throw new RuntimeException("Only valid method argument is Request!");
+        }
+        return true;
+    }
+
     private void mapPathMethod(Method method, Object controllerInstance){
         RouteMethod routeMethod = new RouteMethod(method, controllerInstance);
         String path = method.getAnnotation(Path.class).path();
 
-        routeMethods.put(path, routeMethod);
+        if(routeMethods.putIfAbsent(path, routeMethod) != null){
+            throw new RuntimeException("There can't be two methods with the same path!");
+        }
+    }
+
+    public void handleRequest(Request request){
+        //TODO
     }
 }
