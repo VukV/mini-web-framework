@@ -49,14 +49,6 @@ public class ServerThread implements Runnable{
                 return;
             }
 
-
-            // Response example
-            /*
-            Map<String, Object> responseMap = new HashMap<>();
-            responseMap.put("route_location", request.getLocation());
-            responseMap.put("route_method", request.getMethod().toString());
-            responseMap.put("parameters", request.getParameters());
-             */
             Response response = RouteRegistrationEngine.getInstance().handleRequest(request);
 
             out.println(response.render());

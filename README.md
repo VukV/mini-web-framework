@@ -1,6 +1,6 @@
 # Mini Web Framework
 
-Java reflection project Advanced Web Programming course at Faculty of Computing.
+Java reflection project for Advanced Web Programming course at Faculty of Computing.
 
 The goal of the project was to learn reflection and annotations, and then make a mini web framework using those concepts. The framework supports dependency injection and URL path mapping to specified methods using annotations.
 
